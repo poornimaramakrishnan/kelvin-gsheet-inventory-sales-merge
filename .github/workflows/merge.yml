@@ -5,13 +5,25 @@ on:
   workflow_dispatch:
     inputs:
       manager_sheet_id:
-        description: '📊 Manager Google Sheet ID'
+        description: '📊 Manager Sheet ID'
         required: true
         default: '1bXyE-NoIMhB9ojvIHVuUKC4MI80JI0R8GGPafXx2tpw'
-      staff_sheets_json:
-        description: '👥 Staff Sheets JSON array (e.g. [{"id":"...","label":"Staff 1"}])'
+      staff1_sheet_id:
+        description: '� Staff 1 — Sheet ID'
         required: true
-        default: '[{"id":"1S2p8wzRAb8IBgWQKwBOyiFIxnYVl-7gFPL_PeHeOy5g","label":"Duplicate file for staff"},{"id":"1kriqFrOqTzCcadKs4vBnoB3CgLslmAsdXk2Llhj6TfA","label":"Duplicate file for staff 2"}]'
+        default: '1S2p8wzRAb8IBgWQKwBOyiFIxnYVl-7gFPL_PeHeOy5g'
+      staff1_label:
+        description: '👤 Staff 1 — Name / Label'
+        required: true
+        default: 'Duplicate file for staff'
+      staff2_sheet_id:
+        description: '👥 Staff 2 — Sheet ID'
+        required: true
+        default: '1kriqFrOqTzCcadKs4vBnoB3CgLslmAsdXk2Llhj6TfA'
+      staff2_label:
+        description: '👥 Staff 2 — Name / Label'
+        required: true
+        default: 'Duplicate file for staff 2'
       recipients:
         description: '📧 Email recipients (comma-separated)'
         required: false
@@ -47,8 +59,9 @@ jobs:
       # ─── Merge ───
       - name: 🔄 Run Sheet Merge
         env:
-          MANAGER_SHEET_ID: ${{ inputs.manager_sheet_id || '1bXyE-NoIMhB9ojvIHVuUKC4MI80JI0R8GGPafXx2tpw' }}
-          STAFF_SHEETS_JSON: ${{ inputs.staff_sheets_json || '[{"id":"1S2p8wzRAb8IBgWQKwBOyiFIxnYVl-7gFPL_PeHeOy5g","label":"Duplicate file for staff"},{"id":"1kriqFrOqTzCcadKs4vBnoB3CgLslmAsdXk2Llhj6TfA","label":"Duplicate file for staff 2"}]' }}
+          MANAGER_SHEET_ID: ${{ inputs.manager_sheet_id }}
+          STAFF_SHEETS_JSON: >-
+            [{"id":"${{ inputs.staff1_sheet_id }}","label":"${{ inputs.staff1_label }}"},{"id":"${{ inputs.staff2_sheet_id }}","label":"${{ inputs.staff2_label }}"}]
         run: python src/merge_gsheets.py
 
       # ─── Report ───
