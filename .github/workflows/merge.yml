@@ -9,21 +9,21 @@ on:
         required: true
         default: '1bXyE-NoIMhB9ojvIHVuUKC4MI80JI0R8GGPafXx2tpw'
       staff1_sheet_id:
-        description: '� Staff 1 — Sheet ID'
+        description: '👤 Staff 1 — Sheet ID'
         required: true
         default: '1S2p8wzRAb8IBgWQKwBOyiFIxnYVl-7gFPL_PeHeOy5g'
       staff1_label:
-        description: '👤 Staff 1 — Name / Label'
-        required: true
-        default: 'Duplicate file for staff'
+        description: '👤 Staff 1 — Label (optional, used in logs & Col Y)'
+        required: false
+        default: 'Staff 1'
       staff2_sheet_id:
         description: '👥 Staff 2 — Sheet ID'
         required: true
         default: '1kriqFrOqTzCcadKs4vBnoB3CgLslmAsdXk2Llhj6TfA'
       staff2_label:
-        description: '👥 Staff 2 — Name / Label'
-        required: true
-        default: 'Duplicate file for staff 2'
+        description: '👥 Staff 2 — Label (optional, used in logs & Col Y)'
+        required: false
+        default: 'Staff 2'
       recipients:
         description: '📧 Email recipients (comma-separated)'
         required: false
@@ -61,7 +61,7 @@ jobs:
         env:
           MANAGER_SHEET_ID: ${{ inputs.manager_sheet_id }}
           STAFF_SHEETS_JSON: >-
-            [{"id":"${{ inputs.staff1_sheet_id }}","label":"${{ inputs.staff1_label }}"},{"id":"${{ inputs.staff2_sheet_id }}","label":"${{ inputs.staff2_label }}"}]
+            [{"id":"${{ inputs.staff1_sheet_id }}","label":"${{ inputs.staff1_label || 'Staff 1' }}"},{"id":"${{ inputs.staff2_sheet_id }}","label":"${{ inputs.staff2_label || 'Staff 2' }}"}]
         run: python src/merge_gsheets.py
 
       # ─── Report ───
