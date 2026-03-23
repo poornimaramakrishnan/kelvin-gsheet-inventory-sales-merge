@@ -1,0 +1,44 @@
+# Credentials — NEVER commit these
+credentials.json
+token.json
+gsheets_token.json
+
+# Runtime artifacts
+backup/
+merge_report.json
+merge_report.html
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Excel / Office files
+*.xlsx
+*.xls
+*.csv
+
+# Zip
+*.zip
+
+# Misc
+*.log

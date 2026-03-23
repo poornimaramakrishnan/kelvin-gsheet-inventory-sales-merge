@@ -1,0 +1,82 @@
+name: 🔄 Sheet Merge
+
+on:
+  # Run from GitHub UI — click "Run workflow" button
+  workflow_dispatch:
+    inputs:
+      manager_sheet_id:
+        description: '📊 Manager Google Sheet ID'
+        required: true
+        default: '1bXyE-NoIMhB9ojvIHVuUKC4MI80JI0R8GGPafXx2tpw'
+      staff_sheets_json:
+        description: '👥 Staff Sheets JSON array (e.g. [{"id":"...","label":"Staff 1"}])'
+        required: true
+        default: '[{"id":"1S2p8wzRAb8IBgWQKwBOyiFIxnYVl-7gFPL_PeHeOy5g","label":"Duplicate file for staff"},{"id":"1kriqFrOqTzCcadKs4vBnoB3CgLslmAsdXk2Llhj6TfA","label":"Duplicate file for staff 2"}]'
+      recipients:
+        description: '📧 Email recipients (comma-separated)'
+        required: false
+        default: ''
+
+  # Optional: run on a schedule (e.g. every day at 9 AM UTC)
+  # schedule:
+  #   - cron: '0 9 * * *'
+
+jobs:
+  merge-and-report:
+    name: 🔄 Merge Sheets & Send Report
+    runs-on: ubuntu-latest
+
+    env:
+      GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+      GMAIL_USER: ${{ secrets.GMAIL_USER }}
+      GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+
+    steps:
+      # ─── Setup ───
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Install dependencies
+        run: pip install -r requirements.txt
+
+      # ─── Merge ───
+      - name: 🔄 Run Sheet Merge
+        env:
+          MANAGER_SHEET_ID: ${{ inputs.manager_sheet_id || '1bXyE-NoIMhB9ojvIHVuUKC4MI80JI0R8GGPafXx2tpw' }}
+          STAFF_SHEETS_JSON: ${{ inputs.staff_sheets_json || '[{"id":"1S2p8wzRAb8IBgWQKwBOyiFIxnYVl-7gFPL_PeHeOy5g","label":"Duplicate file for staff"},{"id":"1kriqFrOqTzCcadKs4vBnoB3CgLslmAsdXk2Llhj6TfA","label":"Duplicate file for staff 2"}]' }}
+        run: python src/merge_gsheets.py
+
+      # ─── Report ───
+      - name: 📊 Generate HTML Report
+        if: always()
+        run: python src/report_generator.py
+
+      - name: 📧 Send Email Report
+        if: always()
+        env:
+          REPORT_RECIPIENTS: ${{ inputs.recipients || secrets.REPORT_RECIPIENTS || '' }}
+        run: python src/send_report.py
+
+      # ─── Artifacts ───
+      - name: 📎 Upload Report as Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merge-report-${{ github.run_number }}
+          path: |
+            merge_report.html
+            merge_report.json
+          retention-days: 30
+
+      - name: 📎 Upload Backup as Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merge-backup-${{ github.run_number }}
+          path: backup/
+          retention-days: 7
